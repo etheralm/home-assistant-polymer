@@ -1,12 +1,13 @@
 import { html } from '@polymer/polymer/lib/utils/html-tag.js';
 import { PolymerElement } from '@polymer/polymer/polymer-element.js';
-import '@polymer/paper-icon-button/paper-icon-button.js';
 
 import '../../../components/ha-card.js';
+import '../../../components/ha-icon.js';
 import '../components/hui-image.js';
 
 import computeStateDisplay from '../../../common/entity/compute_state_display.js';
 import computeStateName from '../../../common/entity/compute_state_name.js';
+import { DOMAINS_TOGGLE } from '../../../common/const.js';
 import stateIcon from '../../../common/entity/state_icon.js';
 import toggleEntity from '../common/entity/toggle-entity.js';
 import processConfigEntities from '../common/process-config-entities';
@@ -15,12 +16,6 @@ import EventsMixin from '../../../mixins/events-mixin.js';
 import LocalizeMixin from '../../../mixins/localize-mixin.js';
 import NavigateMixin from '../../../mixins/navigate-mixin.js';
 import computeDomain from '../../../common/entity/compute_domain';
-
-const DOMAINS_TOGGLE = new Set([
-  'input_boolean',
-  'light',
-  'switch'
-]);
 
 const STATES_OFF = new Set([
   'closed',
@@ -64,10 +59,12 @@ class HuiPictureGlanceCard extends NavigateMixin(LocalizeMixin(EventsMixin(Polym
           font-weight: 500;
           margin-left: 8px;
         }
-        paper-icon-button {
+        ha-icon {
+          cursor: pointer;
+          padding: 8px;
           color: #A9A9A9;
         }
-        paper-icon-button.state-on {
+        ha-icon.state-on {
           color: white;
         }
       </style>
@@ -88,22 +85,22 @@ class HuiPictureGlanceCard extends NavigateMixin(LocalizeMixin(EventsMixin(Polym
           </template>
           <div>
             <template is="dom-repeat" items="[[_computeVisible(_entitiesDialog, hass.states)]]">
-              <paper-icon-button
+              <ha-icon
                 on-click="_openDialog"
                 class$="[[_computeButtonClass(item.entity, hass.states)]]"
-                icon="[[_computeIcon(item.entity, hass.states)]]"
+                icon="[[_computeIcon(item, hass.states)]]"
                 title="[[_computeTooltip(item.entity, hass.states)]]"
-              ></paper-icon-button>
+              ></ha-icon>
             </template>
           </div>
           <div>
             <template is="dom-repeat" items="[[_computeVisible(_entitiesToggle, hass.states)]]">
-              <paper-icon-button
+              <ha-icon
                 on-click="_callService"
                 class$="[[_computeButtonClass(item.entity, hass.states)]]"
-                icon="[[_computeIcon(item.entity, hass.states)]]"
+                icon="[[_computeIcon(item, hass.states)]]"
                 title="[[_computeTooltip(item.entity, hass.states)]]"
-              ></paper-icon-button>
+              ></ha-icon>
             </template>
           </div>
         </div>
@@ -152,8 +149,8 @@ class HuiPictureGlanceCard extends NavigateMixin(LocalizeMixin(EventsMixin(Polym
     return collection.filter(el => el.entity in states);
   }
 
-  _computeIcon(entityId, states) {
-    return stateIcon(states[entityId]);
+  _computeIcon(item, states) {
+    return item.icon || stateIcon(states[item.entity]);
   }
 
   _computeButtonClass(entityId, states) {

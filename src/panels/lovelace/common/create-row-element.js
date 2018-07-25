@@ -1,6 +1,8 @@
 import fireEvent from '../../../common/dom/fire_event.js';
 
+import '../entity-rows/hui-climate-entity-row.js';
 import '../entity-rows/hui-cover-entity-row.js';
+import '../entity-rows/hui-group-entity-row.js';
 import '../entity-rows/hui-input-number-entity-row.js';
 import '../entity-rows/hui-input-select-entity-row.js';
 import '../entity-rows/hui-input-text-entity-row.js';
@@ -11,6 +13,7 @@ import '../entity-rows/hui-text-entity-row.js';
 import '../entity-rows/hui-timer-entity-row.js';
 import '../entity-rows/hui-toggle-entity-row.js';
 
+import '../special-rows/hui-call-service-row.js';
 import '../special-rows/hui-divider-row.js';
 import '../special-rows/hui-weblink-row.js';
 
@@ -18,14 +21,16 @@ import createErrorCardConfig from './create-error-card-config.js';
 
 const CUSTOM_TYPE_PREFIX = 'custom:';
 const SPECIAL_TYPES = new Set([
+  'call-service',
   'divider',
   'weblink'
 ]);
 const DOMAIN_TO_ELEMENT_TYPE = {
   automation: 'toggle',
+  climate: 'climate',
   cover: 'cover',
   fan: 'toggle',
-  group: 'toggle',
+  group: 'group',
   input_boolean: 'toggle',
   input_number: 'input-number',
   input_select: 'input-select',

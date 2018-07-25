@@ -5,13 +5,13 @@ import '../components/hui-generic-entity-row.js';
 import '../../../components/entity/ha-entity-toggle.js';
 
 import computeStateDisplay from '../../../common/entity/compute_state_display.js';
-
+import { DOMAINS_TOGGLE } from '../../../common/const.js';
 import LocalizeMixin from '../../../mixins/localize-mixin.js';
 
 /*
  * @appliesMixin LocalizeMixin
  */
-class HuiToggleEntityRow extends LocalizeMixin(PolymerElement) {
+class HuiGroupEntityRow extends LocalizeMixin(PolymerElement) {
   static get template() {
     return html`
       <hui-generic-entity-row
@@ -43,21 +43,9 @@ class HuiToggleEntityRow extends LocalizeMixin(PolymerElement) {
       },
       _canToggle: {
         type: Boolean,
-        computed: '_computeCanToggle(_stateObj.state)'
+        computed: '_computeCanToggle(_stateObj.attributes.entity_id)'
       }
     };
-  }
-
-  _computeStateObj(states, entityId) {
-    return states && entityId in states ? states[entityId] : null;
-  }
-
-  _computeCanToggle(state) {
-    return state === 'on' || state === 'off';
-  }
-
-  _computeState(stateObj) {
-    return stateObj && computeStateDisplay(this.localize, stateObj);
   }
 
   setConfig(config) {
@@ -66,5 +54,17 @@ class HuiToggleEntityRow extends LocalizeMixin(PolymerElement) {
     }
     this._config = config;
   }
+
+  _computeStateObj(states, entityId) {
+    return states && entityId in states ? states[entityId] : null;
+  }
+
+  _computeCanToggle(entityIds) {
+    return entityIds.some(entityId => DOMAINS_TOGGLE.has(entityId.split('.', 1)[0]));
+  }
+
+  _computeState(stateObj) {
+    return computeStateDisplay(this.localize, stateObj);
+  }
 }
-customElements.define('hui-toggle-entity-row', HuiToggleEntityRow);
+customElements.define('hui-group-entity-row', HuiGroupEntityRow);
