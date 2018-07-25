@@ -24,13 +24,17 @@ class MoreInfoFan extends LocalizeMixin(EventsMixin(PolymerElement)) {
     <style>
       .container-speed_list,
       .container-direction,
-      .container-oscillating {
+      .container-oscillating,
+      .container-night_mode,
+      .container-angle {
         display: none;
       }
 
       .has-speed_list .container-speed_list,
       .has-direction .container-direction,
-      .has-oscillating .container-oscillating {
+      .has-oscillating .container-oscillating,
+      .has-night_mode .container-night_mode,
+      .has-angle_low .container-angle {
         display: block;
       }
 
@@ -62,6 +66,23 @@ class MoreInfoFan extends LocalizeMixin(EventsMixin(PolymerElement)) {
           </paper-toggle-button>
         </div>
       </div>
+      
+      <div class="container-angle">
+        <template is="dom-if" if="[[oscillationToggleChecked]]">
+            <div class="center horizontal layout single-row">
+              <paper-input value="{{angleLow}}" label="[[localize('ui.card.fan.angle_low')]]" on-change="angleLowChanged">
+              </paper-input>
+            </div>
+            <div class="center horizontal layout single-row" hidden$=oscillationToggleChecked>
+              <paper-input value="{{angleHigh}}" label="[[localize('ui .card.fan.angle_high')]]" on-change="angleHighChanged">
+              </paper-input>
+            </div>
+        </template>
+        <div class="center horizontal layout single-row">
+            <paper-input value="{{angleLow}}" label="[[localize('ui.card.fan.angle')]]" on-change="angleChanged">
+            </paper-input>
+        </div>
+      </div>
 
       <div class="container-direction">
         <div class="direction">
@@ -70,9 +91,17 @@ class MoreInfoFan extends LocalizeMixin(EventsMixin(PolymerElement)) {
           <paper-icon-button icon="hass:rotate-right" on-click="onDirectionRight" title="Right" disabled="[[computeIsRotatingRight(stateObj)]]"></paper-icon-button>
         </div>
       </div>
+       
+      <div class="container-night_mode">
+        <div class="center horizontal layout single-row">
+          <div class="flex">[[localize('ui.card.fan.night_mode')]]</div>
+          <paper-toggle-button checked="[[nightModeToggleChecked]]" on-change="nightModeToggleChanged">
+          </paper-toggle-button>
+        </div>
+      </div>
     </div>
 
-    <ha-attributes state-obj="[[stateObj]]" extra-filters="speed,speed_list,oscillating,direction"></ha-attributes>
+    <ha-attributes state-obj="[[stateObj]]" extra-filters="speed,speed_list,oscillating,direction,night_mode,angle_low,angle_high"></ha-attributes>
 `;
   }
 
@@ -96,6 +125,14 @@ class MoreInfoFan extends LocalizeMixin(EventsMixin(PolymerElement)) {
       oscillationToggleChecked: {
         type: Boolean,
       },
+
+      angleLowChanged: {
+        type: Number,
+      },
+
+      angleHighChanged: {
+        type: Number,
+      },
     };
   }
 
@@ -103,6 +140,9 @@ class MoreInfoFan extends LocalizeMixin(EventsMixin(PolymerElement)) {
     if (newVal) {
       this.setProperties({
         oscillationToggleChecked: newVal.attributes.oscillating,
+        nightModeToggleChecked: newVal.attributes.night_mode,
+        angleLow: newVal.attributes.angle_low,
+        angleHigh: newVal.attributes.angle_high,
         speedIndex: newVal.attributes.speed_list ?
           newVal.attributes.speed_list.indexOf(newVal.attributes.speed) : -1,
       });
@@ -116,7 +156,8 @@ class MoreInfoFan extends LocalizeMixin(EventsMixin(PolymerElement)) {
   }
 
   computeClassNames(stateObj) {
-    return 'more-info-fan ' + attributeClassNames(stateObj, ['oscillating', 'speed_list', 'direction']);
+    return 'more-info-fan ' + attributeClassNames(stateObj, ['oscillating', 'speed_list', 'direction',
+      'night_mode', 'angle_low', 'angle_high']);
   }
 
   speedChanged(speedIndex) {
@@ -142,6 +183,40 @@ class MoreInfoFan extends LocalizeMixin(EventsMixin(PolymerElement)) {
     this.hass.callService('fan', 'oscillate', {
       entity_id: this.stateObj.entity_id,
       oscillating: newVal,
+    });
+  }
+
+  angleLowChanged(ev) {
+    const newVal = ev.target.value;
+    const oldVal = this.stateObj.attributes.angle_low;
+
+    if (oldVal === newVal) return;
+
+    this.hass.callService('fan', 'set_angle', {
+      entity_id: this.stateObj.entity_id,
+      angle_low: newVal
+    });
+  }
+
+  angleHighChanged(ev) {
+    const newVal = ev.target.value;
+    const oldVal = this.stateObj.attributes.angle_high;
+
+    if (oldVal === newVal) return;
+
+    this.hass.callService('fan', 'set_angle', {
+      entity_id: this.stateObj.entity_id,
+      angle_high: newVal
+    });
+  }
+
+  angleChanged(ev) {
+    const newVal = ev.target.value;
+
+    this.hass.callService('fan', 'set_angle', {
+      entity_id: this.stateObj.entity_id,
+      angle_low: newVal,
+      angle_high: newVal
     });
   }
 

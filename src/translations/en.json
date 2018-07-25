@@ -348,7 +348,11 @@
       "fan": {
         "speed": "Speed",
         "oscillate": "Oscillate",
-        "direction": "Direction"
+        "direction": "Direction",
+        "night_mode": "Night mode",
+        "angle": "Angle",
+        "angle_low": "Angle low",
+        "angle_high": "Angle high"
       },
       "light": {
         "brightness": "Brightness",
